@@ -1,6 +1,7 @@
 require 'sinatra'
 require 'active_record'
 require 'sqlite3'
+require 'json'
 
 # Connect to the database
 
@@ -30,6 +31,15 @@ end
 
 get '/' do
   send_file "index.html"
+end
+
+get '/toys' do
+  Toy.all.map { |toy| {id: toy.id, name: toy.name, price: toy.price} }.to_json
+end
+
+get '/cart' do
+  user = User.where(name: "Sam").first_or_create
+  user.toys.map { |toy| {id: toy.id, name: toy.name, price: toy.price} }.to_json
 end
 
 post '/cart' do
