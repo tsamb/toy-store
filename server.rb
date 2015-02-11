@@ -2,8 +2,6 @@ require 'sinatra'
 require 'active_record'
 require 'sqlite3'
 
-require 'pry'
-
 # Connect to the database
 
 ActiveRecord::Base.establish_connection(
@@ -29,8 +27,6 @@ class User < ActiveRecord::Base
 end
 
 # Routes
-
-# binding.pry
 
 get '/' do
   send_file "index.html"
