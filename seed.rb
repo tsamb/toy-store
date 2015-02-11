@@ -1,10 +1,5 @@
-require 'sinatra'
 require 'active_record'
 require 'sqlite3'
-
-require 'pry'
-
-# Connect to the database
 
 ActiveRecord::Base.establish_connection(
   :adapter => 'sqlite3',
@@ -28,17 +23,10 @@ class User < ActiveRecord::Base
   has_many :toys, through: :carts
 end
 
-# Routes
+# Seed data
 
-# binding.pry
-
-get '/' do
-  send_file "index.html"
-end
-
-post '/cart' do
-  user = User.where(name: "Sam").first_or_create
-  toy = Toy.find(params[:toy_id])
-  user.toys << toy
-  {id: toy.id, name: toy.name, price: toy.price}.to_json
-end
+Toy.create(name:"Toy Soldier", price: 550)
+Toy.create(name:"Risk", price: 4000)
+Toy.create(name:"Spinning Top", price: 300)
+Toy.create(name:"Yoyo", price: 500)
+Toy.create(name:"Marble Machine", price: 2000)
