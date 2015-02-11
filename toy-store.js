@@ -1,3 +1,5 @@
+// Invariant data
+
 var StoreInventory = [
   new Item("Toy Soldier", 5.99),
   new Item("Buzzy Bee", 10.99)
@@ -8,8 +10,10 @@ var ViewData = {
   storeContainer: "#store-list-container"
 }
 
-function List() {
-  this.items = [];
+// List model
+
+function List(options) {
+  this.items = options.inventory || [];
 }
 
 List.prototype.addItem = function(item) {
@@ -30,55 +34,26 @@ List.prototype.findByName = function(name) {
   }
 }
 
+// Item model
+
 function Item(name, price) {
   this.name = name;
   this.price = price;
 }
 
-
-
-function ShoppingListView(controller, container) {
-  this.controller = controller;
-  this.$container = $(container)
-}
-
-
-
-ShoppingListView.prototype.append = function(item) {
-  this.$container.append("<tr><td>" + item.name + "</td><td>" + item.price +"</td></tr>")
-}
-
-function StoreListView(controller, container) {
-  this.controller = controller;
-  this.$container = $(container)
-}
-
-StoreListView.prototype.setClickListeners = function() {
-  // TKTKTK: choose what we want to bind to
-  $("").on("click", this.getName.bind(this))
-}
-
-StoreListView.prototype.getName = function() {
-  var name = $("").text() // TKTKTK: Debug this later... might be val()
-  this.controller.nameClicked(name)
-}
+// App controller
 
 function Controller() {
-  this.storeList = new List
-  this.shoppingList = new List
-  this.shoppingListView = new ShoppingListView(this, ViewData.shoppingContainer)
-  this.storeListView = new StoreListView(this, ViewData.storeContainer)
-  this.initializeStoreList()
+  this.storeList = new List({inventory: StoreInventory});
+  this.shoppingList = new List({});
+  this.shoppingListView = new ShoppingListView(this, ViewData.shoppingContainer);
+  this.storeListView = new StoreListView(this, ViewData.storeContainer, this.storeList.items);
 }
 
 Controller.prototype.nameClicked = function(name) {
   var item = this.storeList.findByName(name);
   this.shoppingList.addItem(item);
   this.shoppingListView.append(item);
-}
-
-Controller.prototype.initializeStoreList = function() {
-  this.shoppingList.addItems(StoreInventory);
 }
 
 Controller.prototype.setViewListeners = function() {
@@ -89,3 +64,41 @@ Controller.prototype.getNameFromView = function(event) {
   var name = event.target.whatever
   this.nameClicked(name)
 }
+
+// Views
+
+// Shopping List view
+
+function ShoppingListView(controller, container) {
+  this.controller = controller;
+  this.$container = $(container)
+}
+
+ShoppingListView.prototype.append = function(item) {
+  this.$container.append("<tr><td>" + item.name + "</td><td>" + item.price +"</td></tr>")
+}
+
+// Store List view
+
+function StoreListView(controller, container, items) {
+  this.controller = controller;
+  this.$container = $(container);
+  this.init(items)
+}
+
+StoreListView.prototype.init = function(items) {
+  for (var i = 0; i < items.length; i++) {
+    this.buildItem(items[i])
+  }
+}
+
+StoreListView.prototype.buildItem = function(item) {
+  var item = $("<tr><td>" + item.name + "</td><td>" + item.price +"</td></tr>").appendTo(this.$container)
+  $(item).on("click", this.nameClicked.bind(this));
+}
+
+StoreListView.prototype.nameClicked = function(event) {
+  this.controller.nameClicked(event.currentTarget.firstChild.innerText)
+}
+
+var shop = new Controller
