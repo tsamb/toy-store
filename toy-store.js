@@ -34,6 +34,14 @@ List.prototype.findByName = function(name) {
   }
 }
 
+List.prototype.totalPrice = function() {
+  var total = 0.0;
+  for (var i = 0; i < this.items.length; i++) {
+    total += this.items[i].price;
+  }
+  return total.toFixed(2);
+}
+
 // Item model
 
 function Item(name, price) {
@@ -54,15 +62,7 @@ Controller.prototype.nameClicked = function(name) {
   var item = this.storeList.findByName(name);
   this.shoppingList.addItem(item);
   this.shoppingListView.append(item);
-}
-
-Controller.prototype.setViewListeners = function() {
-  this.storeListView.$container.on("click", this.getNameFromView.bind(this))
-}
-
-Controller.prototype.getNameFromView = function(event) {
-  var name = event.target.whatever
-  this.nameClicked(name)
+  this.shoppingListView.updateTotalPrice(this.shoppingList.totalPrice())
 }
 
 // Views
@@ -71,11 +71,20 @@ Controller.prototype.getNameFromView = function(event) {
 
 function ShoppingListView(controller, container) {
   this.controller = controller;
-  this.$container = $(container)
+  this.$container = $(container);
+  this.init();
+}
+
+ShoppingListView.prototype.init = function() {
+  this.$container.prepend("<tr><th>Total price:</th><th id='total-price'>0</th><tr>")
 }
 
 ShoppingListView.prototype.append = function(item) {
   this.$container.append("<tr><td>" + item.name + "</td><td>" + item.price +"</td></tr>")
+}
+
+ShoppingListView.prototype.updateTotalPrice = function(totalPrice) {
+  $("#total-price").text(totalPrice);
 }
 
 // Store List view
@@ -83,7 +92,7 @@ ShoppingListView.prototype.append = function(item) {
 function StoreListView(controller, container, items) {
   this.controller = controller;
   this.$container = $(container);
-  this.init(items)
+  this.init(items);
 }
 
 StoreListView.prototype.init = function(items) {
